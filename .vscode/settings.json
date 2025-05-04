@@ -24,7 +24,13 @@
     "ratio": "c",
     "vernon_st7789t.h": "c",
     "ws_lcd.h": "c",
-    "sdmmc_cmd.h": "c"
+    "sdmmc_cmd.h": "c",
+    "generator": "c",
+    "mcpwm_timer.h": "c",
+    "functional": "c",
+    "algorithm": "c",
+    "esp_gatt_common_api.h": "c",
+    "lvgl_example.h": "c"
   },
   "idf.adapterTargetName": "esp32c6",
   "idf.openOcdConfigs": [
