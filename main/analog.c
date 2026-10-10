@@ -187,10 +187,17 @@ void AdcContinuous_FillJoyStickOutput(struct robodrive_command* cmd)
 {
     //ESP_LOGI(ADC_TAG, "r_joy fwd %f, right %f", getAverage(&analog_ch_avgs[0]), getAverage(&analog_ch_avgs[1]));
     //ESP_LOGI(ADC_TAG, "l_joy fwd %f, right %f", getAverage(&analog_ch_avgs[2]), getAverage(&analog_ch_avgs[3]));
-    cmd->r_joy_fwd = getRatio(&analog_ch_avgs[0], 1455.0f, -2456.f);  // 191 2646
+    cmd->r_joy_fwd = getRatio(&analog_ch_avgs[0], 1483.0f, -2521.f);  // 182 2703  
+    cmd->r_joy_right = getRatio(&analog_ch_avgs[1], 1448.0f, 2522.f); // 2703 181
+    cmd->l_joy_fwd = getRatio(&analog_ch_avgs[2], 1426.0f, 2521.f);  // 2702 181
+    cmd->l_joy_right = getRatio(&analog_ch_avgs[3], 1438.8f, -2522.f); // 181 2703
+
+/*
+    cmd->r_joy_fwd = getRatio(&analog_ch_avgs[0], 1455.0f, -2456.f);  // 191 2646  
     cmd->r_joy_right = getRatio(&analog_ch_avgs[1], 1425.0f, 2456.f); // 2646 190
     cmd->l_joy_fwd = getRatio(&analog_ch_avgs[2], 1410.0f, 2456.f);  // 2646 190
     cmd->l_joy_right = getRatio(&analog_ch_avgs[3], 1415.0f, -2456.f); // 190 2646
+    */
 }
 
 

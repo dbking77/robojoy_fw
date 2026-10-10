@@ -1,5 +1,7 @@
 #include "lvgl_robot_control.h"
+#include "lvgl_robot_select.h"
 #include "robodrive_comm_client.h"
+#include "gatt_client.h"
 #include "demos/lv_demos.h"
 
 #include "LVGL_Driver.h"
@@ -18,6 +20,7 @@ extern int g_rssi;
 *   STATIC variable
 **********************/
 
+static lv_obj_t * robot_name_label;
 static lv_obj_t * robot_battery_icon;
 static lv_obj_t* robot_battery_bar;
 static lv_obj_t * robot_battery_label;
@@ -28,6 +31,8 @@ static lv_obj_t* signal_icon = NULL;
 
 static lv_obj_t* rate_label = NULL;
 static lv_obj_t* rate_bar = NULL;
+
+static lv_obj_t* conn_count_label = NULL;
 
 LV_IMG_DECLARE(img_signal3);
 LV_IMG_DECLARE(img_signal2);
@@ -46,9 +51,14 @@ void LvglRobotControl_create(lv_obj_t * parent)
     int robot_battery_level_percent = -1;
     //float battery_voltage = 12.1f;
 
+    robot_name_label = lv_label_create(parent);
+    lv_obj_add_style(robot_name_label, &style_title, 0);
+    lv_label_set_text(robot_name_label, LvglRobotSelect_GetSelectedName());
+    lv_obj_align(robot_name_label, LV_ALIGN_TOP_LEFT, 5, 5);
+
     robot_battery_icon = lv_img_create(parent);
     lv_img_set_src(robot_battery_icon, &img_battery1);
-    lv_obj_align(robot_battery_icon, LV_ALIGN_TOP_LEFT, 5, 5);
+    lv_obj_align_to(robot_battery_icon, robot_name_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 5);
 
     robot_battery_bar = lv_bar_create(parent);
     lv_obj_set_size(robot_battery_bar, 100, 10);
@@ -103,11 +113,22 @@ void LvglRobotControl_create(lv_obj_t * parent)
     lv_obj_align_to(rate_label, rate_bar, LV_ALIGN_OUT_BOTTOM_MID, -32, 0);
 
 
+    ////////////////////////////////////
+    // BLE connection count
+    ////////////////////////////////////
+    conn_count_label = lv_label_create(parent);
+    lv_obj_add_style(conn_count_label, &style_text_small, 0);
+    snprintf(strbuf, sizeof(strbuf), "Conn Cnt 0");
+    strbuf[sizeof(strbuf)-1] = '\0';
+    lv_label_set_text(conn_count_label, strbuf);
+    lv_obj_align_to(conn_count_label, rate_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 0);
 }
 
 void LvglRobotControl_update()
 {
   char strbuf[32];
+
+  lv_label_set_text(robot_name_label, LvglRobotSelect_GetSelectedName());
 
   // Robot Battery
   int robot_battery_level_percent = RoboDriveCommClient_GetBatteryPercent();
@@ -174,4 +195,8 @@ void LvglRobotControl_update()
   strbuf[sizeof(strbuf)-1] = '\0';
   lv_label_set_text(rate_label, strbuf);
   lv_bar_set_value(rate_bar, rate_percent, LV_ANIM_OFF);
+
+  snprintf(strbuf, sizeof(strbuf), "Conn Cnt %u", GattClient_GetConnectionCount());
+  strbuf[sizeof(strbuf)-1] = '\0';
+  lv_label_set_text(conn_count_label, strbuf);
 }

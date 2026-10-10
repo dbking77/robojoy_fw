@@ -6,7 +6,6 @@
 #define FW_VERSION_MAJOR 1
 #define FW_VERSION_MINOR 0
 #define ROBODRIVE_MAGIC 0xDE
-#define ROBODRIVE_BLE_ADV_NAME "ROBODRIVE_2025"
 
 struct robodrive_header
 {

@@ -20,13 +20,14 @@
 #define PROFILE_A_APP_ID 0
 #define INVALID_HANDLE   0
 
-static char remote_device_name[ESP_BLE_ADV_NAME_LEN_MAX] = ROBODRIVE_BLE_ADV_NAME;
+static char remote_device_name[ESP_BLE_ADV_NAME_LEN_MAX];
 
 int g_rssi = 0;
 
 static bool connected  = false;
 static bool get_server = false;
 static bool ready_for_comm = false;
+static unsigned connection_count = 0;
 static esp_gattc_char_elem_t *char_elem_result   = NULL;
 
 /* Declare static functions */
@@ -88,7 +89,9 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
         }
         break;
     case ESP_GATTC_CONNECT_EVT:{
-        ESP_LOGI(GATTC_TAG, "Connected, conn_id %d, remote "ESP_BD_ADDR_STR"", p_data->connect.conn_id,
+        connection_count++;
+        ESP_LOGI(GATTC_TAG, "Connected (#%u), conn_id %d, remote "ESP_BD_ADDR_STR"",
+                 connection_count, p_data->connect.conn_id,
                  ESP_BD_ADDR_HEX(p_data->connect.remote_bda));
         gl_profile_tab[PROFILE_A_APP_ID].conn_id = p_data->connect.conn_id;
         memcpy(gl_profile_tab[PROFILE_A_APP_ID].remote_bda, p_data->connect.remote_bda, sizeof(esp_bd_addr_t));
@@ -244,6 +247,8 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
         ready_for_comm = false;
         ESP_LOGI(GATTC_TAG, "Disconnected, remote "ESP_BD_ADDR_STR", reason 0x%02x",
                  ESP_BD_ADDR_HEX(p_data->disconnect.remote_bda), p_data->disconnect.reason);
+        /* Restart scanning so we can reconnect to the remote device. */
+        esp_ble_gap_start_scanning(30);
         break;
     default:
         ESP_LOGE(GATTC_TAG, "Unhandled event %d", event);
@@ -320,6 +325,11 @@ static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
             }
             break;
         case ESP_GAP_SEARCH_INQ_CMPL_EVT:
+            /* Scan window ended without a live link; keep looking if disconnected. */
+            if (!connected) {
+                ESP_LOGI(GATTC_TAG, "Scan complete, restarting scan");
+                esp_ble_gap_start_scanning(30);
+            }
             break;
         default:
             break;
@@ -405,6 +415,27 @@ static void esp_gattc_cb(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp
 }
 
 
+void GattClient_SetRemoteName(const char* name)
+{
+    if (name == NULL)
+    {
+        name = "";
+    }
+    if (strcmp(remote_device_name, name) == 0)
+    {
+        return;
+    }
+
+    strncpy(remote_device_name, name, sizeof(remote_device_name) - 1);
+    remote_device_name[sizeof(remote_device_name) - 1] = '\0';
+    ESP_LOGI(GATTC_TAG, "Remote device name %s", remote_device_name);
+
+    if (connected && gl_profile_tab[PROFILE_A_APP_ID].gattc_if != ESP_GATT_IF_NONE)
+    {
+        esp_ble_gattc_close(gl_profile_tab[PROFILE_A_APP_ID].gattc_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id);
+    }
+}
+
 void GattClient_Init()
 {
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
@@ -482,4 +513,9 @@ void GattClient_ReadRSSI()
     {
         ESP_ERROR_CHECK(esp_ble_gap_read_rssi(gl_profile_tab[PROFILE_A_APP_ID].remote_bda));
     }
+}
+
+unsigned GattClient_GetConnectionCount()
+{
+    return connection_count;
 }

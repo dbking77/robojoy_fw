@@ -37,6 +37,22 @@ static lv_timer_t * meter2_timer;
 
 static lv_indev_drv_t g_indev_drv;
 static lv_indev_t * g_indev;
+static bool g_select_mode;
+
+#define LVGL_TAB_SELECT  0
+#define LVGL_TAB_CONTROL 1
+
+void Lvgl_SetSelectMode(bool select_mode)
+{
+  g_select_mode = select_mode;
+  if (tv == NULL)
+  {
+    return;
+  }
+
+  uint16_t tab = select_mode ? LVGL_TAB_SELECT : LVGL_TAB_CONTROL;
+  lv_tabview_set_act(tv, tab, LV_ANIM_OFF);
+}
 
 void IRAM_ATTR auto_switch(lv_timer_t * t)
 {
@@ -51,8 +67,14 @@ void IRAM_ATTR auto_switch(lv_timer_t * t)
 
 void Lvgl_update(lv_timer_t* timer)
 {
-  //LvglRobotControl_update();
-  //LvglRobotSelect_update();
+  if (g_select_mode)
+  {
+    LvglRobotSelect_update();
+  }
+  else
+  {
+    LvglRobotControl_update();
+  }
 }
 
 void keyboard_read(lv_indev_drv_t * indev, lv_indev_data_t * data)
@@ -130,30 +152,18 @@ void Lvgl_Example1(void)
   lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x000000), LV_PART_MAIN);
   
   tv = lv_tabview_create(lv_scr_act(), LV_DIR_TOP, tab_h);
-  // lv_group_remove_obj(tv);
   lv_obj_set_style_bg_color(tv, lv_color_hex(0xFFFFFF), 0);
 
-  //lv_obj_t * select_tab = lv_tabview_add_tab(tv, "Select");
-  //lv_group_set_default(group);
-
-  //lv_gridnav_set_focused(tv, select_tab, LV_ANIM_ON);
-
-  //lv_obj_t * control_tab = lv_tabview_add_tab(tv, "Control");
-  //lv_group_remove_obj(control_tab);
-  //lv_obj_t * select_tab = lv_scr_act();
-
-  //lv_group_add_obj(group, select_tab);
   lv_group_t * group = lv_group_create();
   lv_indev_set_group(g_indev, group);
-  //lv_group_add_obj(group, select_tab);
-  //v_gridnav_add(select_tab, LV_GRIDNAV_CTRL_NONE);
-  //LvglRobotSelect_create(select_tab, group);
 
-  //lv_group_t * top_group = lv_group_get_default(); //lv_group_create();  //
-  //lv_group_add_obj(top_group, select_tab);
+  lv_obj_t * select_tab = lv_tabview_add_tab(tv, "Select");
+  LvglRobotSelect_create(select_tab, group);
 
   lv_obj_t * control_tab = lv_tabview_add_tab(tv, "Control");
   LvglRobotControl_create(control_tab);
+
+  lv_tabview_set_act(tv, LVGL_TAB_CONTROL, LV_ANIM_OFF);
 
   // Setup timer to update display
   lv_timer_create(Lvgl_update, 500, NULL);

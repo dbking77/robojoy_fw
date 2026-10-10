@@ -5,9 +5,13 @@
 
 void GattClient_Init();
 
+void GattClient_SetRemoteName(const char* name);
+
 void GattClient_Send(uint8_t* data, unsigned len);
 
 bool GattClient_IsReadyForComm();
 
 void GattClient_ReadRSSI();
 int GattClient_GetRSSI();
+
+unsigned GattClient_GetConnectionCount();

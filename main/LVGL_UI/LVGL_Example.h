@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 //#include "lvgl.h"
 //#include "demos/lv_demos.h"
 
@@ -10,3 +12,5 @@
 
 
 void Lvgl_Example1(void);
+
+void Lvgl_SetSelectMode(bool select_mode);
