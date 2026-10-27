@@ -14,7 +14,6 @@
 extern lv_style_t style_text_muted;
 extern lv_style_t style_title;
 extern lv_style_t style_text_small;
-extern int g_rssi;
 
 /**********************
 *   STATIC variable
@@ -153,9 +152,10 @@ void LvglRobotControl_update()
 
 
   // RSS 100%%
+  int rssi = GattClient_GetRSSI();
   int min_rssi = -100;
   int max_rssi = -20;
-  int signal_strength_percent = (100 * (g_rssi - min_rssi)) / (max_rssi - min_rssi);
+  int signal_strength_percent = (100 * (rssi - min_rssi)) / (max_rssi - min_rssi);
   if (signal_strength_percent > 100)
   {
     signal_strength_percent = 100;
@@ -164,7 +164,7 @@ void LvglRobotControl_update()
   {
     signal_strength_percent = 0;
   }
-  snprintf(strbuf, sizeof(strbuf), "RSSI %ddB : %d%%", g_rssi, signal_strength_percent);
+  snprintf(strbuf, sizeof(strbuf), "RSSI %ddB : %d%%", rssi, signal_strength_percent);
   strbuf[sizeof(strbuf)-1] = '\0';
   lv_label_set_text(signal_label, strbuf);
   lv_bar_set_value(signal_bar, signal_strength_percent, LV_ANIM_OFF);

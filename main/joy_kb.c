@@ -28,7 +28,7 @@ JoyKey JoyKb_GetAndClearKey()
     return key;
 }
 
-int abs(int value)
+static int joy_abs(int value)
 {
     return value > 0 ? value : -value;
 }
@@ -60,7 +60,7 @@ void JoyKb_Update(int joy_fwd, int joy_right, int button)
     }
 
     // Going back to center resets lockout
-    if (next_key == JOY_KEY_NONE && abs(joy_right) < JOY_LOWER_LIMIT && abs(joy_fwd) < JOY_LOWER_LIMIT)
+    if (next_key == JOY_KEY_NONE && joy_abs(joy_right) < JOY_LOWER_LIMIT && joy_abs(joy_fwd) < JOY_LOWER_LIMIT)
     {
         state->lockout = 0;
     }

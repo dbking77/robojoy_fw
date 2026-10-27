@@ -1,4 +1,4 @@
-#include "LVGL_Example.h"
+#include "lvgl_main.h"
 
 
 #include "lvgl_robot_control.h"
@@ -17,7 +17,8 @@
 //static void Onboard_create(lv_obj_t * parent);
 
 static void ta_event_cb(lv_event_t * e);
-void example1_increase_lvgl_tick(lv_timer_t * t);
+static void lvgl_main_update(lv_timer_t * timer);
+static void lvgl_main_indev_init(void);
 /**********************
  *  STATIC VARIABLES
  **********************/
@@ -42,7 +43,7 @@ static bool g_select_mode;
 #define LVGL_TAB_SELECT  0
 #define LVGL_TAB_CONTROL 1
 
-void Lvgl_SetSelectMode(bool select_mode)
+void LvglMain_setSelectMode(bool select_mode)
 {
   g_select_mode = select_mode;
   if (tv == NULL)
@@ -65,7 +66,7 @@ void IRAM_ATTR auto_switch(lv_timer_t * t)
   }
 }
 
-void Lvgl_update(lv_timer_t* timer)
+static void lvgl_main_update(lv_timer_t * timer)
 {
   if (g_select_mode)
   {
@@ -101,7 +102,7 @@ void keyboard_read(lv_indev_drv_t * indev, lv_indev_data_t * data)
   }
 }
 
-void Lvgl_IndevInit()
+static void lvgl_main_indev_init(void)
 {
   lv_indev_drv_init(&g_indev_drv);
   g_indev_drv.type = LV_INDEV_TYPE_KEYPAD;
@@ -110,9 +111,9 @@ void Lvgl_IndevInit()
   g_indev = lv_indev_drv_register(&g_indev_drv);
 }
 
-void Lvgl_Example1(void)
+void LvglMain_init(void)
 {
-  Lvgl_IndevInit();
+  lvgl_main_indev_init();
 
   font_large = LV_FONT_DEFAULT;
   font_normal = LV_FONT_DEFAULT;
@@ -166,12 +167,12 @@ void Lvgl_Example1(void)
   lv_tabview_set_act(tv, LVGL_TAB_CONTROL, LV_ANIM_OFF);
 
   // Setup timer to update display
-  lv_timer_create(Lvgl_update, 500, NULL);
+  lv_timer_create(lvgl_main_update, 500, NULL);
 }
 
 
 
-void Lvgl_Example1_close(void)
+void LvglMain_close(void)
 {
   /*Delete all animation*/
   lv_anim_del(NULL, NULL);

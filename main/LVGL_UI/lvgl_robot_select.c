@@ -22,7 +22,6 @@ static const char* const robot_names[] = {
 extern lv_style_t style_text_muted;
 extern lv_style_t style_title;
 extern lv_style_t style_text_small;
-extern int g_rssi;
 
 /**********************
 *   STATIC variable

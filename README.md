@@ -28,3 +28,14 @@ The roundtrip time (RTT), received signal strength (RSS), and battery voltage fe
 
 If connection is dropped the joystick will automatically try to reconnect again.
 A connection count is displayed on the screen.  It can be used to detect a robot than might be resetting because a brown-out or bad battery connection.
+
+## Host simulator (Linux)
+
+`sim/` runs the same LVGL screens on the desktop through SDL2. One LVGL window is the 172×320 panel. A second LVGL window feeds the stick, slider switch, RSSI, round-trip time, connection count, and robot battery.
+
+```
+sudo apt install libsdl2-dev
+cmake -S sim -B sim/build
+cmake --build sim/build
+./sim/build/robojoy_ui
+```

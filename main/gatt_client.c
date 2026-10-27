@@ -22,7 +22,7 @@
 
 static char remote_device_name[ESP_BLE_ADV_NAME_LEN_MAX];
 
-int g_rssi = 0;
+static int g_rssi = 0;
 
 static bool connected  = false;
 static bool get_server = false;
@@ -518,4 +518,9 @@ void GattClient_ReadRSSI()
 unsigned GattClient_GetConnectionCount()
 {
     return connection_count;
+}
+
+int GattClient_GetRSSI()
+{
+    return g_rssi;
 }

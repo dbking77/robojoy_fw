@@ -5,7 +5,7 @@ idf_component_register(
           "LCD_Driver/Vernon_ST7789T/Vernon_ST7789T.c"
           "LCD_Driver/ST7789.c"
           "LVGL_Driver/LVGL_Driver.c"
-          "LVGL_UI/LVGL_Example.c"
+          "LVGL_UI/lvgl_main.c"
           "LVGL_UI/lvgl_robot_control.c"
           "LVGL_UI/lvgl_robot_select.c"
           "LVGL_UI/img_battery1.c"

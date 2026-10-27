@@ -7,7 +7,7 @@
 #include "ST7789.h"
 #include "SD_SPI.h"
 #include "RGB.h"
-#include "LVGL_Example.h"
+#include "lvgl_main.h"
 
 #include "driver/mcpwm_timer.h"
 #include "driver/mcpwm_prelude.h"
@@ -60,8 +60,6 @@ void Gpio_Init()
     ESP_ERROR_CHECK(gpio_set_pull_mode(SLIDER_SW_GPIO, GPIO_PULLUP_ONLY));
 }
 
-extern int g_rssi;
-
 #define SLIDER_SAMPLE_COUNT 100
 #define SLIDER_SAMPLE_PERIOD_US 100
 #define SLIDER_SELECT_HIGH_COUNT 80
@@ -105,7 +103,7 @@ static void JoystickSelectLoop(struct robodrive_command *cmd)
     int64_t slider_low_since_us = -1;
 
     JoyKb_Init();
-    Lvgl_SetSelectMode(true);
+    LvglMain_setSelectMode(true);
 
     while (1)
     {
@@ -148,7 +146,7 @@ static void JoystickSelectLoop(struct robodrive_command *cmd)
         AdcContinuous_Read();
     }
 
-    Lvgl_SetSelectMode(false);
+    LvglMain_setSelectMode(false);
 }
 
 #define NVS_NAMESPACE "robojoy"
@@ -214,7 +212,7 @@ static void ControlLoop(struct robodrive_command *cmd)
             int slider_sw = gpio_get_level(SLIDER_SW_GPIO);
             float v_batt = AdcContinuous_GetBatteryVoltage();
             //ESP_LOGE("GPIO", "R_SW %d, L_SW %d, SLIDER %d  VBATT %f", r_sw, l_sw, slider_sw, v_batt);
-            //ESP_LOGI("RSSI", "g_rssi %d", g_rssi);
+            //ESP_LOGI("RSSI", "rssi %d", GattClient_GetRSSI());
 
             AdcContinuous_FillJoyStickOutput(cmd);
             //ESP_LOGI(ROBOJOY_TAG, "lv_tick %u cycle_counter %d", (unsigned)lv_tick_get(), cycle_counter)
@@ -266,7 +264,7 @@ void app_main(void)
     GattClient_Init();
     RoboDriveCommClient_Init();
 
-    Lvgl_Example1();
+    LvglMain_init();
 
     struct robodrive_command cmd;
     if (SliderSwitchRequestsSelect())
